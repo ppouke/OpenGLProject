@@ -22,4 +22,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader_s.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\vShader.vs" />
+    <None Include="Shaders\fShader.fs" />
+  </ItemGroup>
 </Project>
