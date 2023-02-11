@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\OULU UNIVERSITY\Documents\GitHub\OpenGLProject\OpenGLProject\Includes;C:\Users\OULU UNIVERSITY\Documents\GitHub\OpenGLProject\OpenGLProject;C:\Git\ppouke\OpenGLProject\OpenGLProject;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Git\ppouke\OpenGLProject\OpenGLProject\Includes;C:\Users\OULU UNIVERSITY\Documents\GitHub\OpenGLProject\OpenGLProject\Includes;C:\Users\OULU UNIVERSITY\Documents\GitHub\OpenGLProject\OpenGLProject;C:\Git\ppouke\OpenGLProject\OpenGLProject;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
