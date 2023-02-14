@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+
 #include <stb_image.h>
 
 #include <glm/glm.hpp>
@@ -16,6 +17,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);  
 void mouse_callback(GLFWwindow*, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+unsigned int loadTexture(const char* path);
+//display size
+
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 
 
@@ -34,6 +40,7 @@ bool firstMouse = true;
 
 glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 glm::vec3 lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3 ambientCol = glm::vec3(0.1f, 0.1f, 0.1f);
 
 
 //timing
@@ -51,7 +58,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -243,48 +250,16 @@ int main()
 
     //texture 1 ---------------------------------------------
 
-    unsigned int texture1, texture2;
-    glGenTextures(1, &texture1);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture1);
+    
+  
     
 
-    //set  texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    unsigned int diffuseMap = loadTexture("Images/container2.png");
+    unsigned int specularMap = loadTexture("Images/container2_specular.png");
+    unsigned int emissionMap = loadTexture("Images/matrix.jpg");
 
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data = stbi_load("Images/container.jpg", &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    // texture 2 --------------------------------
-    glGenTextures(1, &texture2);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    data = stbi_load("Images/awesomeface.png", &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+ 
+  
 
 
     //Shader Program ------------------------------------------
@@ -295,40 +270,20 @@ int main()
 
     
     
-    // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+   
     // -------------------------------------------------------------------------------------------
     ourShader.use();
-    glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); //manual setting
-    ourShader.setInt("texture2", 1); //with class code
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    ourShader.setInt("material.diffuse", 0); 
+    ourShader.setInt("materia.specular", 1);
+    ourShader.setInt("material.emission", 2);
     
+ 
+    ourShader.setFloat("material.shininess", 64.0f);
 
-    int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-    
-    int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-
-    int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-    ourShader.use();
-    ourShader.setVec3("material.ambient", glm::vec3(0.2f, 0.3f, 0.3f));
-    ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-    ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-    ourShader.setFloat("material.shininess", 32.0f);
-
+    ourShader.setVec3("light.ambient", ambientCol);
+    ourShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+    ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    ourShader.setVec3("light.position", lightPos);
   
 
 
@@ -341,24 +296,20 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
 
-        float currentFrame = glfwGetTime();
+        float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         //input
         ProcessInput(window); 
 
-
+        
 
         //clear
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(ambientCol.x, ambientCol.y, ambientCol.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        //Textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        
 
 
         //rendering
@@ -374,7 +325,7 @@ int main()
 
         //set projection
 
-        projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
         
         
@@ -382,7 +333,18 @@ int main()
         ourShader.setVec3("lightColor", lightCol);
         ourShader.setVec3("lightPos", lightPos);
         ourShader.setVec3("viewPos", camera.Position);
+
+
         
+        //Textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         //draw boxes
         
@@ -482,6 +444,48 @@ void mouse_callback(GLFWwindow*, double xposIn, double yposIn){
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+unsigned int loadTexture(char const* path) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+    if (data) {
+        GLenum format;
+        if (nrChannels == 1)
+            format = GL_RED;
+        else if (nrChannels == 3)
+            format = GL_RGB;
+        else if (nrChannels == 4)
+            format = GL_RGBA;
+
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        stbi_image_free(data);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+        stbi_image_free(data);
+    }
+
+
+    return textureID;
+
+
+
 }
 
 

@@ -75,7 +75,7 @@ public:
 		glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 		if (!success) {
 			glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION::FAILED" << infoLog << std::endl;
+			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION::FAILED" << infoLog << std::endl;
 		}
 
 		//Shader Program
@@ -121,6 +121,10 @@ public:
 
 	void setVec3(const std::string& name, const glm::vec3 &vec) const {
 		glUniform3fv(glGetUniformLocation(ID, name.c_str()),1, &vec[0]);
+	}
+
+	void setVec3(const std::string& name, float x, float y, float z) {
+		glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 	}
 };
 
