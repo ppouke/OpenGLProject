@@ -138,6 +138,7 @@
     <ClCompile Include="Includes\stb_image_implementation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Includes\camera.h" />
     <ClInclude Include="Includes\shader_s.h" />
     <ClInclude Include="Includes\stb_image.h" />
   </ItemGroup>

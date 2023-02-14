@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <shader_s.h>
+#include <camera.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -18,23 +19,24 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
 
+//camera init
 
-//global variables
-
-float mixValue = 0.2f;
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 float lastX = 400;
 float lastY = 300;
-float yaw = -90.0f;
-float pitch = 0.0f;
-float fov = 45.0f;
 bool firstMouse = true;
 
+
+
+
+//light stuff
+
+glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+glm::vec3 lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
+
+
+//timing
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -321,12 +323,13 @@ int main()
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
-    //light stuff
+    ourShader.use();
+    ourShader.setVec3("material.ambient", glm::vec3(0.2f, 0.3f, 0.3f));
+    ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+    ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    ourShader.setFloat("material.shininess", 32.0f);
 
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-    glm::vec3 lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
-
-
+  
 
 
     //enable depth test
@@ -360,32 +363,25 @@ int main()
 
         //rendering
 
-        //set view
-
         ourShader.use();
 
-        glm::vec3 direction;
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-        cameraFront = glm::normalize(direction);
+        //set view
 
         glm::mat4 view = glm::mat4(1.0f);
 
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
 
         //set projection
 
-        projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
         
-        ourShader.setFloat("mixValue", mixValue);
+        
         //ourShader.setVec3("lightColor", 1.0f,1.0f,1.0f);
         ourShader.setVec3("lightColor", lightCol);
         ourShader.setVec3("lightPos", lightPos);
-        ourShader.setVec3("viewPos", cameraPos);
+        ourShader.setVec3("viewPos", camera.Position);
         
 
         //draw boxes
@@ -412,6 +408,7 @@ int main()
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
         lightShader.setMat4("model", model);
         lightShader.setVec3("lightColor", lightCol);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -445,25 +442,26 @@ void ProcessInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    const float cameraSpeed = 2.5f * deltaTime;
+  
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+        camera.ProcessKeyboard(LEFT, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     }
 
 
 }
 
-void mouse_callback(GLFWwindow*, double xpos, double ypos){
-
+void mouse_callback(GLFWwindow*, double xposIn, double yposIn){
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -476,24 +474,14 @@ void mouse_callback(GLFWwindow*, double xpos, double ypos){
     lastX = xpos;
     lastY = ypos;
     
+    camera.ProcessMouseMovement(xoffset, yoffset);
 
-    const float sensitivity = 0.5f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    pitch = glm::min(89.0f, glm::max(-89.0f, pitch));
+   
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
