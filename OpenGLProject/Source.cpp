@@ -280,10 +280,53 @@ int main()
  
     ourShader.setFloat("material.shininess", 64.0f);
 
-    ourShader.setVec3("light.ambient", ambientCol);
-    ourShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-    ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-    ourShader.setVec3("light.position", lightPos);
+    //ourShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+    //ourShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5)));
+
+    //light calcs 
+    //Directional light
+    ourShader.setVec3("dirLight.direction", 0.3f, -0.5f, 0.0f);
+    ourShader.setVec3("dirLight.ambient", ambientCol);
+    ourShader.setVec3("dirLight.diffuse",glm::vec3(0.8f)); 
+    ourShader.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+
+
+    
+
+    glm::vec3 pointLightPositions[] = {
+    glm::vec3(0.7f,  0.2f,  2.0f),
+    glm::vec3(2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3(0.0f,  0.0f, -3.0f)
+    };
+
+    glm::vec3 pointLightColors[] = {
+        glm::vec3(0.0f,0.0f,0.8f),
+        glm::vec3(1.0f,1.0f,0.0f),
+        glm::vec3(1.0f,0.0f,0.0f),
+        glm::vec3(0.0f,0.7f,0.0f)
+    };
+
+    for (int i = 0; i < 4; i++) {
+        char buffer[64];
+        sprintf_s(buffer, "pointLights[%i].position", i);
+        ourShader.setVec3(buffer, pointLightPositions[i]);
+        sprintf_s(buffer, "pointLights[%i].constant", i);
+        ourShader.setFloat(buffer, 1.0f);
+        sprintf_s(buffer, "pointLights[%i].linear", i);
+        ourShader.setFloat(buffer, 0.09f);
+        sprintf_s(buffer, "pointLights[%i].quadratic", i);
+        ourShader.setFloat(buffer, 0.032f);
+
+        sprintf_s(buffer, "pointLights[%i].ambient", i);
+        ourShader.setVec3(buffer, ambientCol);
+        sprintf_s(buffer, "pointLights[%i].diffuse", i);
+        ourShader.setVec3(buffer, pointLightColors[i]);
+        sprintf_s(buffer, "pointLights[%i].specular", i);
+        ourShader.setVec3(buffer, 1.0f,1.0f,1.0f);
+
+    }
+
   
 
 
@@ -331,7 +374,8 @@ int main()
         
         //ourShader.setVec3("lightColor", 1.0f,1.0f,1.0f);
         ourShader.setVec3("lightColor", lightCol);
-        ourShader.setVec3("lightPos", lightPos);
+        ourShader.setVec3("light.position", camera.Position);
+        ourShader.setVec3("light.direction", camera.Front);
         ourShader.setVec3("viewPos", camera.Position);
 
 
@@ -368,12 +412,17 @@ int main()
         
         
 
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lightShader.setMat4("model", model);
-        lightShader.setVec3("lightColor", lightCol);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 4; i++) {
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            lightShader.setMat4("model", model);
+            lightShader.setVec3("lightColor", pointLightColors[i]);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+        }
 
    
         
