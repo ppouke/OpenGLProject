@@ -35,6 +35,9 @@
     <ClInclude Include="Includes\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Includes\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\vShader.vs" />
