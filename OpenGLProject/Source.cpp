@@ -274,7 +274,7 @@ int main()
     // -------------------------------------------------------------------------------------------
     ourShader.use();
     ourShader.setInt("material.diffuse", 0); 
-    ourShader.setInt("materia.specular", 1);
+    ourShader.setInt("material.specular", 1);
     ourShader.setInt("material.emission", 2);
     
  
