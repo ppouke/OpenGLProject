@@ -464,13 +464,14 @@ unsigned int loadTexture(char const* path) {
     int width, height, nrChannels;
     unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
     if (data) {
-        GLenum format;
+        GLenum format = GL_RGB;
         if (nrChannels == 1)
             format = GL_RED;
         else if (nrChannels == 3)
             format = GL_RGB;
         else if (nrChannels == 4)
             format = GL_RGBA;
+  
 
 
         glBindTexture(GL_TEXTURE_2D, textureID);
