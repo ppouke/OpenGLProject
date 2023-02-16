@@ -3,7 +3,8 @@
 #include <iostream>
 
 
-#include <stb_image.h>
+#include <Includes/stb_image.h>
+
 
 
 #include <glm/glm.hpp>
@@ -12,6 +13,7 @@
 
 #include <shader_s.h>
 #include <camera.h>
+#include <model.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -86,54 +88,7 @@ int main()
     
 
     //Set up vertex data
-    //-----------------------------------------------------
-
-    
-
-    /*float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };*/
-
+  
     float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f,
@@ -193,7 +148,8 @@ int main()
     };
 
 
-    
+
+    Model backpack("Resources/Models/backpack.obj");
  
 
     unsigned int indices[] = {  // note that we start from 0!
@@ -255,9 +211,9 @@ int main()
   
     
 
-    unsigned int diffuseMap = loadTexture("Images/container2.png");
-    unsigned int specularMap = loadTexture("Images/container2_specular.png");
-    unsigned int emissionMap = loadTexture("Images/matrix.jpg");
+    unsigned int diffuseMap = loadTexture("Resources/Images/container2.png");
+    unsigned int specularMap = loadTexture("Resources/Images/container2_specular.png");
+    unsigned int emissionMap = loadTexture("Resources/Images/matrix.jpg");
 
  
   
@@ -425,6 +381,10 @@ int main()
 
         }
 
+
+        //draw model
+
+        //backpack.Draw(ourShader);
    
         
         
