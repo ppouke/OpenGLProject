@@ -131,11 +131,13 @@ int main()
 
     //light calcs 
     //Directional light
+
+    ourShader.use();
     ourShader.setVec3("dirLight.direction", 0.3f, -0.5f, 0.0f);
     ourShader.setVec3("dirLight.ambient", ambientCol);
     ourShader.setVec3("dirLight.diffuse",glm::vec3(0.8f)); 
     ourShader.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
-
+    
 
     
 
@@ -215,6 +217,7 @@ int main()
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
 
+        //set constants
         ourShader.setFloat("material.shininess" ,32.0f);
 
 

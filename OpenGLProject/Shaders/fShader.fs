@@ -7,8 +7,6 @@ struct Material{
 };
 
 struct PointLight {
-
-
 	vec3 position;
 	//float cutOff;
 	//float outerCutOff;
@@ -109,17 +107,14 @@ void main()
 		result += CalcPointLight(pointLights[i], norm, FragPos,  viewDir);
 	}
 
-
-	
-
 	//vec3 emit = texture(material.emission, texCoord).xyz * clamp((1 - texture(material.texture_specular1, texCoord).r * 20), 0, 1);
 
 	//attenuation
 
 	
-
-	
-
 	//vec3 exDiff = texture(material.texture_diffuse1, texCoord).xyz;
+
+
+
 	FragColor = vec4(result, 1.0f);
 }
