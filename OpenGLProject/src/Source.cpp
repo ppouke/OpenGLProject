@@ -3,6 +3,10 @@
 #include <iostream>
 
 
+#include<chrono>
+#include<thread>
+
+
 #include <Includes/stb_image.h>
 
 
@@ -186,7 +190,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    
+    //60fps = 16.67 ms
 
     while (!glfwWindowShouldClose(window))
     {
@@ -194,6 +198,10 @@ int main()
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        //fps
+        std::chrono::high_resolution_clock timer;
+        auto start = timer.now();
         //input
         ProcessInput(window); 
 
@@ -225,6 +233,23 @@ int main()
    
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+
+
+        //frame limiting
+        auto stop = timer.now();
+        auto delta = stop - start;
+        auto totMs = chrono::milliseconds(8);
+        std::this_thread::sleep_for(totMs - delta);
+        auto secondStop = timer.now();
+        typedef std::chrono::milliseconds ms;
+        typedef std::chrono::duration<float> fsec;
+        fsec fs =  secondStop - start;
+        ms d = std::chrono::duration_cast<ms>(fs);
+        
+
+        //cout << d.count() << endl;
+        
     }
 
     glfwTerminate();
