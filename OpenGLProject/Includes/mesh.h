@@ -1,7 +1,8 @@
 #pragma once
 
+
 #include <glad/glad.h>
-#include <glm/matrix.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
 #include <shader_s.h>
@@ -50,13 +51,17 @@ public:
 			}
 
 			shader.setInt(("material." + name + number).c_str(), i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+			
 		}
-		glActiveTexture(GL_TEXTURE0);
-
+		
 		//draw mesh
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
+
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 private:
@@ -84,7 +89,7 @@ private:
 
 		//texCoord
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
 		glBindVertexArray(0);
 

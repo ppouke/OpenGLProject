@@ -1,14 +1,14 @@
 #version 330 core
 
 struct Material{
-
-	sampler2D diffuse;
-	sampler2D specular;
+	sampler2D texture_specular1;
+	sampler2D texture_diffuse1;
 	float shininess;
-	sampler2D emission;
 };
 
 struct PointLight {
+
+
 	vec3 position;
 	//float cutOff;
 	//float outerCutOff;
@@ -35,7 +35,6 @@ struct DirLight{
 
 out vec4 FragColor;
 
-in vec3 vertexPos;
 in vec3 Normal;
 in vec2 texCoord;
 in vec3 FragPos;
@@ -56,9 +55,9 @@ vec3 CalcDirLight(DirLight light,vec3 normal, vec3 viewDir){
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir),0), material.shininess);
 
-	vec3 ambient = light.ambient * texture(material.diffuse, texCoord).rgb;
-	vec3 diffuse = light.diffuse * (diff * texture(material.diffuse, texCoord).rgb);
-	vec3 specular = light.specular * texture(material.specular,texCoord).rgb * spec; 
+	vec3 ambient = light.ambient * texture(material.texture_diffuse1, texCoord).rgb;
+	vec3 diffuse = light.diffuse * (diff * texture(material.texture_diffuse1, texCoord).rgb);
+	vec3 specular = light.specular * texture(material.texture_specular1,texCoord).rgb * spec; 
 
 	return ambient + specular + diffuse;
 }
@@ -75,9 +74,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
 	float distance = length(light.position - fragPos);
 	float attenuation = 1/(light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
-	vec3 ambient = light.ambient * texture(material.diffuse, texCoord).rgb;
-	vec3 diffuse = light.diffuse * (diff * texture(material.diffuse, texCoord).rgb);
-	vec3 specular = light.specular * texture(material.specular,texCoord).rgb * spec;
+	vec3 ambient = light.ambient * texture(material.texture_diffuse1, texCoord).rgb;
+	vec3 diffuse = light.diffuse * (diff * texture(material.texture_diffuse1, texCoord).rgb);
+	vec3 specular = light.specular * texture(material.texture_specular1,texCoord).rgb * spec;
 	
 
 	ambient *= attenuation;
@@ -113,18 +112,14 @@ void main()
 
 	
 
-	//vec3 emit = texture(material.emission, texCoord).xyz * clamp((1 - texture(material.specular, texCoord).r * 20), 0, 1);
+	//vec3 emit = texture(material.emission, texCoord).xyz * clamp((1 - texture(material.texture_specular1, texCoord).r * 20), 0, 1);
 
 	//attenuation
 
 	
 
-	//diffuse *= intensity;
-	//specular *= intensity;
-
-
 	
 
-	
+	//vec3 exDiff = texture(material.texture_diffuse1, texCoord).xyz;
 	FragColor = vec4(result, 1.0f);
 }
