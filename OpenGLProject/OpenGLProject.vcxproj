@@ -141,6 +141,7 @@
     <ClInclude Include="Includes\camera.h" />
     <ClInclude Include="Includes\mesh.h" />
     <ClInclude Include="Includes\model.h" />
+    <ClInclude Include="Includes\primitive.h" />
     <ClInclude Include="Includes\shader_s.h" />
     <ClInclude Include="Includes\stb_image.h" />
   </ItemGroup>
