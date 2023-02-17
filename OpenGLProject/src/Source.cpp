@@ -25,7 +25,8 @@ void ProcessInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow*, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 unsigned int loadTexture(const char* path);
-//display size
+void drawObjectWithOutline(Model& object, Shader& objectShader, Shader& outlineShader, glm::mat4 model, glm::mat4 view, glm::mat4 projection);
+    //display size
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
@@ -114,6 +115,7 @@ int main()
     //Directional light
 
     ourShader.use();
+
     ourShader.setVec3("dirLight.direction", 0.3f, -0.5f, 0.0f);
     ourShader.setVec3("dirLight.ambient", ambientCol);
     ourShader.setVec3("dirLight.diffuse",glm::vec3(0.8f)); 
@@ -162,7 +164,7 @@ int main()
     stbi_set_flip_vertically_on_load(true);
     Model backpack("Resources/Models/backpack/backpack.obj");
 
-    Model shadowCatcher("Resources/Models/shadowcatcher/Shadowcatcher.obj");
+    //Model shadowCatcher("Resources/Models/shadowcatcher/Shadowcatcher.obj");
 
   
 
@@ -170,6 +172,14 @@ int main()
     //enable depth test
 
     glEnable(GL_DEPTH_TEST);
+
+
+    // stencil testing
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+   
 
     //60fps = 16.67 ms
 
@@ -191,10 +201,10 @@ int main()
         
 
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
-        depthShader.use();
+        ourShader.use();
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -206,28 +216,16 @@ int main()
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 
         //set constants
-        //ourShader.setFloat("material.shininess" ,32.0f);
+        ourShader.setFloat("material.shininess" ,32.0f);
 
-        depthShader.setMat4("model", model);
-        depthShader.setMat4("projection", projection);
-        depthShader.setMat4("view", view);
+        ourShader.setMat4("model", model);
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
 
-
-
-        backpack.Draw(ourShader);
-
-        lightShader.use();
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(5.0f));
-        lightShader.setMat4("model", model);
-        lightShader.setMat4("view", view);
-        lightShader.setMat4("projection", projection);
+        
+        drawObjectWithOutline(backpack, ourShader, unlitShader, model, view, projection);
         
         
-        lightShader.setVec3("col", glm::vec3(1.0f));
-        shadowCatcher.Draw(ourShader);
    
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -307,6 +305,42 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
+
+void drawObjectWithOutline(Model &object,Shader &objectShader, Shader &outlineShader, glm::mat4 model, glm::mat4 view, glm::mat4 projection) {
+
+    //Stencil test
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    object.Draw(objectShader);
+
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00); //disable writing
+    glDisable(GL_DEPTH_TEST);
+
+    outlineShader.use();
+    outlineShader.setVec3("col", 0.2f, 0.2f, 1.0f);
+
+  
+    model = glm::scale(model, glm::vec3(1.05f, 1.05f, 1.05f));	// it's a bit too big for our scene, so scale it down
+    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+    outlineShader.setMat4("model", model);
+    outlineShader.setMat4("view", view);
+    outlineShader.setMat4("projection", projection);
+
+    object.Draw(outlineShader);
+
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
+
+
+
+
+
+}
 
 
 

@@ -2,6 +2,18 @@
 
 out vec4 FragColor;
 
+float near  = 0.1;
+float far = 10.0;
+
+float LinearizeDepth(float depth){
+	float ndc = depth * 2.0 - 1;
+	float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));
+	return linearDepth;
+}
+
 void main(){
-	FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+
+	
+	float linearDepth = LinearizeDepth(gl_FragCoord.z) / far;
+	FragColor = vec4(vec3(linearDepth), 1.0);
 }
