@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mesh.h>
+#include <Model/mesh.h>
 #include<Includes/shader_s.h>
 #include<Includes/stb_image.h>
 #include <assimp/Importer.hpp>

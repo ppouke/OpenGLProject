@@ -28,7 +28,7 @@ public:
 	const char* specularTex;
 	
 
-	primitive(int primitiveType, const char* diffuseTex = "Resources/Images/DefaultTextures/defaultDiffuse.jpg",
+	primitive(PrimitiveType primitiveType, const char* diffuseTex = "Resources/Images/DefaultTextures/defaultDiffuse.jpg",
 		const char* specularTex = "Resources/Images/DefaultTexture/defaultSpecular.jpg")
 	{
 		this->diffuseTex = diffuseTex;
