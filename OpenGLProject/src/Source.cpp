@@ -91,32 +91,7 @@ int main()
     }
      
 
-    //read model
-
  
-
-
-
-    //create buffer and assign vertices --------------------------------------
-
-    
-
-    //ligthVAO
-    /*unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    */
-
-    //texture 1 ---------------------------------------------
-
-    
-  
-  
- 
-  
-
 
     //Shader Program ------------------------------------------
 
@@ -180,8 +155,12 @@ int main()
     }
 
 
+    //read models
+
     stbi_set_flip_vertically_on_load(true);
     Model backpack("Resources/Models/backpack/backpack.obj");
+
+    Model shadowCatcher("Resources/Models/shadowcatcher/Shadowcatcher.obj");
 
   
 
@@ -199,9 +178,11 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        //fps
+        //fps counters
         std::chrono::high_resolution_clock timer;
         auto start = timer.now();
+
+
         //input
         ProcessInput(window); 
 
@@ -227,9 +208,25 @@ int main()
 
         //set constants
         ourShader.setFloat("material.shininess" ,32.0f);
+        ourShader.setVec3("material.color", glm::vec3(1.0f));
+
+
 
 
         backpack.Draw(ourShader);
+
+        lightShader.use();
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(5.0f));
+        lightShader.setMat4("model", model);
+        lightShader.setMat4("view", view);
+        lightShader.setMat4("projection", projection);
+        
+        
+        lightShader.setVec3("col", glm::vec3(1.0f));
+        shadowCatcher.Draw(ourShader);
    
         glfwSwapBuffers(window);
         glfwPollEvents();
