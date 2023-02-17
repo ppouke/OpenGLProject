@@ -145,6 +145,7 @@
     <ClInclude Include="Includes\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\depthShader.fs" />
     <None Include="Shaders\fShader.fs" />
     <None Include="Shaders\unlitShader.fs" />
     <None Include="Shaders\vShader.vs" />
