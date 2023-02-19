@@ -12,27 +12,31 @@
 
 #include <Includes/stb_image.h>
 
+#include <Primitive/primitiveTypes.h>
 
+#include <Model/mesh.h>
 using namespace std;
 
 
 
-enum PrimitiveType {
-	Plane, Box, Sphere
-};
-
-class primitive {
+class Primitive {
 
 public:
 	const char* diffuseTex;
 	const char* specularTex;
 	
+	vector<float> vertices;
+	vector<unsigned int> indices;
+	vector<unsigned int> textures;
 
-	primitive(PrimitiveType primitiveType, const char* diffuseTex = "Resources/Images/DefaultTextures/defaultDiffuse.jpg",
-		const char* specularTex = "Resources/Images/DefaultTexture/defaultSpecular.jpg")
+	bool usingIndices;
+
+	Primitive(PrimitiveType primitiveType, const char* diffuseTex = "Resources/Images/DefaultTextures/defaultDiffuse.jpg",
+		const char* specularTex = "Resources/Images/DefaultTextures/defaultSpecular.jpg")
 	{
 		this->diffuseTex = diffuseTex;
 		this->specularTex = specularTex;
+		this->usingIndices = true;
 		
 		SetupMesh(primitiveType);
 	}
@@ -41,15 +45,36 @@ public:
 	void Draw(Shader& shader) {
 
 
-		//diffuse
-		glActiveTexture(GL_TEXTURE0);
-		shader.setInt("material.texture_diffuse1", 0);
-		glBindTexture(GL_TEXTURE_2D, TextureFromFile(diffuseTex));
 
-		//specular
-		glActiveTexture(GL_TEXTURE1);
-		shader.setInt("material.texture_specular1", 1);
-		glBindTexture(GL_TEXTURE_2D, TextureFromFile(specularTex));
+		for (int i = 0; i < textures.size(); i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			if(i == 0){
+				//diffuse
+				glActiveTexture(GL_TEXTURE0);
+				shader.setInt("material.texture_diffuse1", i);
+				glBindTexture(GL_TEXTURE_2D, textures[i]);
+			}
+			else {
+				//specular
+				glActiveTexture(GL_TEXTURE1);
+				shader.setInt("material.texture_specular1", i);
+				glBindTexture(GL_TEXTURE_2D, textures[i]);
+			}
+		}
+
+
+		glBindVertexArray(VAO);
+
+		if (usingIndices)
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+		else
+			glDrawArrays(GL_TRIANGLES, 0, vertices.size()/(sizeof(Vertex) / sizeof(GL_BYTE)));
+		
+		glBindVertexArray(0);
+
+		glActiveTexture(GL_TEXTURE0);
+
 
 
 	}
@@ -57,12 +82,15 @@ public:
 
 private:
 
+
+	//get as vector for dynamic size creation
+	
 	unsigned int TextureFromFile(const char* path) {
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 
 		int width, height, nrChannels;
-		unsigned char* data = stbi_load(path, &width, &height, &nrChannels);
+		unsigned char* data = stbi_load(path, &width, &height, &nrChannels,0);
 		if (data) {
 			GLenum format;
 			if (nrChannels == 1)
@@ -94,7 +122,7 @@ private:
 
 private:
 	unsigned int VBO, VAO, EBO;
-	void SetupMesh(unsigned int primitiveType) {
+	void SetupMesh(PrimitiveType primType) {
 
 
 
@@ -105,10 +133,23 @@ private:
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
+
+
+		GetPrimitive(primType, vertices, indices);
+
+
+		//check if using indices 
+		if (!indices.empty()) usingIndices = true;
+		else usingIndices = false;
+		
+
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
+
+		if(usingIndices){
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+		}
 
 		//vertex positions
 		glEnableVertexAttribArray(0);
@@ -123,6 +164,12 @@ private:
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
 		glBindVertexArray(0);
+		
+
+		//textures
+		
+		textures.push_back(TextureFromFile(diffuseTex));
+		textures.push_back(TextureFromFile(specularTex));
 
 	}
 
