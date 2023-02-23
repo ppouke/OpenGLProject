@@ -35,13 +35,16 @@
     <ClInclude Include="Includes\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\mesh.h">
+    <ClInclude Include="Includes\Model\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\model.h">
+    <ClInclude Include="Includes\Model\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\primitive.h">
+    <ClInclude Include="Includes\Primitive\primitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Primitive\primitiveTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,5 +53,8 @@
     <None Include="Shaders\fShader.fs" />
     <None Include="Shaders\unlitShader.fs" />
     <None Include="Shaders\depthShader.fs" />
+    <None Include="Shaders\cutoffShader.fs" />
+    <None Include="Shaders\bufferVertex.vs" />
+    <None Include="Shaders\bufferFrag.fs" />
   </ItemGroup>
 </Project>

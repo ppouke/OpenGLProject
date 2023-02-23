@@ -29,7 +29,6 @@ struct DirLight{
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-
 };
 
 out vec4 FragColor;

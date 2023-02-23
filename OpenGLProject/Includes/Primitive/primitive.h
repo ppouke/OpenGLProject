@@ -128,7 +128,7 @@ private:
 
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
+		
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -147,8 +147,10 @@ private:
 
 
 		if(usingIndices){
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+			glGenBuffers(1, &EBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
 		}
 
 		//vertex positions
