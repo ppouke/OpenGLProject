@@ -39,6 +39,9 @@ in vec3 FragPos;
 
 uniform Material material;
 
+
+
+
 #define NR_POINT_LIGHTS 3  
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 

@@ -149,6 +149,8 @@
   <ItemGroup>
     <None Include="Shaders\bufferFrag.fs" />
     <None Include="Shaders\bufferVertex.vs" />
+    <None Include="Shaders\cubeFrag.fs" />
+    <None Include="Shaders\cubeVert.vs" />
     <None Include="Shaders\cutoffShader.fs" />
     <None Include="Shaders\depthShader.fs" />
     <None Include="Shaders\fShader.fs" />

@@ -41,7 +41,7 @@ void main(){
 	//black and white 
 	//float average = 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b;
 
-
-	FragColor = vec4(col, 1.0);
+    vec3 screenTex = texture(screenTexture, TexCoords).rgb;
+	FragColor = vec4(screenTex, 1.0);
 
 }
