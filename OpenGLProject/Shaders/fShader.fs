@@ -116,9 +116,7 @@ void main()
 	//vec3 emit = texture(material.emission, texCoord).xyz * clamp((1 - texture(material.texture_specular1, texCoord).r * 20), 0, 1);
 
 	//attenuation
-
-	
-	vec3 exDiff = texture(material.texture_specular1, texCoord).xyz;
+	//vec3 exDiff = texture(material.texture_specular1, texCoord).xyz;
 
 
 

@@ -204,6 +204,9 @@ int main()
 
     }
 
+    ourShader.setFloat("material.shininess", 6.0f);
+
+
 
     //---------------------Cube Map---------------------------
 
@@ -324,6 +327,8 @@ int main()
         sorted[distance] = objPositions[i];
     }
 
+
+
     //enable depth test
 
     glEnable(GL_DEPTH_TEST);
@@ -370,6 +375,22 @@ int main()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    // gl buffer object -----------------------------------
+    unsigned int uboMatrices;
+    glGenBuffers(1, &uboMatrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferData(GL_UNIFORM_BUFFER, 2* sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+
+    //set projection matrix once (no zoom functionaloty) 
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
    
 
     //60fps = 16.67 ms
@@ -397,31 +418,28 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
-        // view/projection transformations
+        // view transformations
         glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 cubeView = glm::mat4(glm::mat3(view));
-        
+        glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-
+       
+       
         // don't forget to enable shader before setting uniforms
         ourShader.use();
 
-       
 
         // place ground 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f,0.0f,0.0f));
         model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));	
-
-        //set constants
-        ourShader.setFloat("material.shininess" ,6.0f);
+        //set model
         ourShader.setMat4("model", model);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("projection", projection);
 
+        
 
         glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
         plane.Draw(ourShader);
@@ -443,6 +461,8 @@ int main()
 
         //Draw skybox
 
+         //cube view without transform
+        glm::mat4 cubeView = glm::mat4(glm::mat3(view));
         glDepthMask(GL_FALSE);
         skyboxShader.use();
         skyboxShader.setMat4("projection", projection);
